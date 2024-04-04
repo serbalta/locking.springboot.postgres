@@ -7,12 +7,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/optimistic")
 public class OptimisticBookingController {
 
     @Autowired
     BookingRepository bookingRepository;
+
+    @GetMapping("/booking/{id}")
+    public ResponseEntity<Booking> getBooking(@PathVariable long id) {
+        Optional<Booking> booking = this.bookingRepository.findById(id);
+        return new ResponseEntity<>(booking.orElse(null), booking.isEmpty() ? HttpStatus.NOT_FOUND : HttpStatus.OK);
+    }
+
+    @GetMapping("/booking")
+    public ResponseEntity<List<Booking>> getBooking() {
+        List<Booking> allBookings = this.bookingRepository.findAll();
+        return new ResponseEntity<>(allBookings, allBookings.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK );
+    }
 
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {

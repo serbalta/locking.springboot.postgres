@@ -17,9 +17,7 @@ public class BookingConfirmation {
         this.bookingId = bookingId;
     }
 
-    public BookingConfirmation() {
-
-    }
+    public BookingConfirmation() {}
 
     public long getBookingId() {
         return bookingId;
