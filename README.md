@@ -4,10 +4,13 @@ Dieses Projekt befasst sich mit der Synchronisation von Geschäftsfällen (Pessi
 
 ## Anforderung (Anwendungsfall):
 Eine API bietet Buchungen an (Bookings). Diese reservieren eine bestimmte Unterkunft (RoomId) für einen bestimmten Zeitraum. Es muss in jedem Fall verhindert werden, dass eine Buchung mehrfach abgeschlossen werden kann oder dass sich eine neue Buchung mit einer bereits bestehenden überschneidet. Die aufrufenden Clients der API sind dem System nicht bekannt und es kann daher nicht angenommen werden, dass diese eine Sychronisation umsetzen.
+
 Die API bietet für den Abschluss einer Buchung drei Endpunkte an (POST Booking, POST BookingConfirmation, DELETE Booking). Damit kann ein Client einen zweistufigen Umsetzungsprozess abbilden. Hier der gut Fall mit beliebiger (für diese Übung nicht interessanter) clientseitigen Logik:
-    1) Buchung reservieren (POST Booking)
-    2) Clientseitige Logik (e.g.: Geldbuchungen) durchführen
-    3) Buchung bestätigen (POST BookingConfirmation)
+
+1. Buchung reservieren (POST Booking)
+2. Clientseitige Logik (e.g.: Geldbuchungen) durchführen
+3. Buchung bestätigen (POST BookingConfirmation)
+   
 Sollte nach dem 2. Schritt der Client die Buchung nicht mehr abschließen wollen, dann gibt es die Möglichkeit die Buchung zu stornieren (DELETE Booking).
 Man kann nun mittels Optimistic- oder Pessimistic-Locking den Gescahäftsfall synchronisieren. Die APIs sind aus Gründen der Performance and Ausfallsicherheit auf mindestens 2 Instanzen hoch skaliert weswegen aufeinanderfolgende Request, die eine zusammengehörige Reservierung und Bestätigung umsetzen, von unterschiedlichen Instanzen gehandelt werden können (load balancing passiert via round robin, keine sticky Sessions).
 
