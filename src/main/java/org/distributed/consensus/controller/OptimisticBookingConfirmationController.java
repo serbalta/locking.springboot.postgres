@@ -32,9 +32,12 @@ public class OptimisticBookingConfirmationController {
 
     @PostMapping("/bookingconfirmation")
     public ResponseEntity<BookingConfirmation> createBooking(@RequestBody BookingConfirmation booking) {
-
         try {
-            // make sure that the same room cannot be booked twice
+
+            // TODO: make sure that the same room cannot be booked more than once
+            // intention: as it is expected that a collisions of bookings are rare
+            // we believe that we will not run into this error here very often
+
             BookingConfirmation _bookingConfirmation = bookingRepository.save(new BookingConfirmation(booking.getBookingId()));
             return new ResponseEntity<>(_bookingConfirmation, HttpStatus.CREATED);
         } catch (Exception e) {
