@@ -16,9 +16,6 @@ public class PessimisticBookingConfirmationController {
 
     @PostMapping("/bookingconfirmation")
     public ResponseEntity<BookingConfirmation> createBooking(@RequestBody BookingConfirmation booking) {
-
-        // TODO make sure that booking is not confirmed multiple times
-
         try {
             BookingConfirmation _bookingConfirmation = bookingRepository.save(new BookingConfirmation(booking.getBookingId()));
             return new ResponseEntity<>(_bookingConfirmation, HttpStatus.CREATED);

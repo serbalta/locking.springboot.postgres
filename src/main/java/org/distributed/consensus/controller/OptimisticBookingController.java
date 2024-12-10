@@ -31,7 +31,6 @@ public class OptimisticBookingController {
 
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
-
         try {
             Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
             return new ResponseEntity<>(_booking, HttpStatus.CREATED);

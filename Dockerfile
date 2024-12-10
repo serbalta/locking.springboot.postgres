@@ -1,4 +1,4 @@
-FROM maven:3.8.4-openjdk-17 as MAVEN_BUILD
+FROM maven:3.9.9-amazoncorretto-21-alpine as MAVEN_BUILD
 
 COPY pom.xml /build/
 COPY src /build/src/
@@ -7,7 +7,7 @@ WORKDIR /build/
 
 RUN mvn -Dmaven.test.skip=true package -Ptest
 
-FROM openjdk:17
+FROM openjdk:21
 
 WORKDIR /app
 

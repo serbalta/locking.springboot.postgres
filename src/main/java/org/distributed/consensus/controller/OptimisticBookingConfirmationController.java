@@ -34,6 +34,7 @@ public class OptimisticBookingConfirmationController {
     public ResponseEntity<BookingConfirmation> createBooking(@RequestBody BookingConfirmation booking) {
 
         try {
+            // make sure that the same room cannot be booked twice
             BookingConfirmation _bookingConfirmation = bookingRepository.save(new BookingConfirmation(booking.getBookingId()));
             return new ResponseEntity<>(_bookingConfirmation, HttpStatus.CREATED);
         } catch (Exception e) {

@@ -17,7 +17,7 @@ public class PessimisticBookingController {
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
 
-        // assure that the same room cannot be booked twice
+        // TODO: assure that the same room cannot be booked twice
 
         try {
             Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
