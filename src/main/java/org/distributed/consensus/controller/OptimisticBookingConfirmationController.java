@@ -37,6 +37,10 @@ public class OptimisticBookingConfirmationController {
             // TODO: make sure that the same room cannot be booked more than once
             // intention: as it is expected that a collisions of bookings are rare
             // we believe that we will not run into this error here very often
+            Optional<BookingConfirmation> existingConfirmation = bookingRepository.findById(booking.getBookingId());
+            if (existingConfirmation.isPresent()) {
+                return new ResponseEntity<>(null, HttpStatus.CONFLICT); // Conflict if confirmation already exists
+            }
 
             BookingConfirmation _bookingConfirmation = bookingRepository.save(new BookingConfirmation(booking.getBookingId()));
             return new ResponseEntity<>(_bookingConfirmation, HttpStatus.CREATED);

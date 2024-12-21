@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/pessimistic")
 public class PessimisticBookingController {
@@ -32,6 +34,14 @@ public class PessimisticBookingController {
         // made in parallel. Consequently it is better when we prevent this very early in the process
 
         try {
+            List<Booking> overlappingBookings = bookingRepository.findOverlappingBookingsWithLock(
+                    booking.getRoomId(), booking.getStart(), booking.getFinish()
+            );
+
+            if (!overlappingBookings.isEmpty()) {
+                // Conflict if overlapping bookings exist
+                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            }
             Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
             return new ResponseEntity<>(_booking, HttpStatus.CREATED);
         } catch (Exception e) {

@@ -41,8 +41,15 @@ public class OptimisticBookingController {
         if (!BookingPolicies.canBook(booking)) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
-
         try {
+            List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
+                    booking.getRoomId(), booking.getStart(), booking.getFinish()
+            );
+
+            if (!overlappingBookings.isEmpty()) {
+                // Conflict if overlapping bookings exist
+                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+            }
             Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
             return new ResponseEntity<>(_booking, HttpStatus.CREATED);
         } catch (Exception e) {

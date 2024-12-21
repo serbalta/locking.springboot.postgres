@@ -23,6 +23,9 @@ public class Booking {
     @Column(name = "finish")
     private Date finish;
 
+    @Version
+    private int version;
+
     public Booking(String name, long roomId, Date from, Date end) {
         this.name = name;
         this.roomId = roomId;
