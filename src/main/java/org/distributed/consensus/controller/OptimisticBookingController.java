@@ -1,5 +1,6 @@
 package org.distributed.consensus.controller;
 
+import jakarta.persistence.OptimisticLockException;
 import org.distributed.consensus.model.Booking;
 import org.distributed.consensus.model.BookingPolicies;
 import org.distributed.consensus.repository.BookingRepository;
@@ -17,6 +18,9 @@ public class OptimisticBookingController {
 
     @Autowired
     BookingRepository bookingRepository;
+
+    private static final int MAX_RETRY = 3; // Max try
+
 
     @GetMapping("/booking/{id}")
     public ResponseEntity<Booking> getBooking(@PathVariable long id) {
@@ -41,20 +45,37 @@ public class OptimisticBookingController {
         if (!BookingPolicies.canBook(booking)) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
-        try {
-            List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
-                    booking.getRoomId(), booking.getStart(), booking.getFinish()
-            );
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY) {
+            try {
+                // Date Conflict Control
+                List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(
+                        booking.getRoomId(), booking.getStart(), booking.getFinish()
+                );
 
-            if (!overlappingBookings.isEmpty()) {
-                // Conflict if overlapping bookings exist
-                return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+                if (!overlappingBookings.isEmpty()) {
+                    return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+                }
+
+                // New Booking
+                Booking _booking = bookingRepository.save(new Booking(
+                        booking.getName(),
+                        booking.getRoomId(),
+                        booking.getStart(),
+                        booking.getFinish()
+                ));
+                return new ResponseEntity<>(_booking, HttpStatus.CREATED);
+
+            } catch (OptimisticLockException e) {
+                retryCount++;
+                if (retryCount >= MAX_RETRY) {
+                    return new ResponseEntity<>(null, HttpStatus.CONFLICT);
+                }
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-            Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
-            return new ResponseEntity<>(_booking, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("/booking/{id}")
