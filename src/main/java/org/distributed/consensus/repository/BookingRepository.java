@@ -1,6 +1,7 @@
 package org.distributed.consensus.repository;
 
 import jakarta.persistence.LockModeType;
+import jakarta.transaction.Transactional;
 import org.distributed.consensus.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -17,6 +18,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.roomId = :roomId AND b.finish > :start AND b.start < :finish")
     @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Transactional
     List<Booking> findOverlappingBookingsWithLock(@Param("roomId") long roomId, @Param("start") Date start, @Param("finish") Date finish);
 }
-
