@@ -1,7 +1,9 @@
 package org.distributed.consensus.controller;
 
 import org.distributed.consensus.model.Booking;
+import org.distributed.consensus.model.BookingConfirmation;
 import org.distributed.consensus.model.BookingPolicies;
+import org.distributed.consensus.repository.BookingConfirmationRepository;
 import org.distributed.consensus.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,9 @@ public class PessimisticBookingController {
 
     @Autowired
     BookingRepository bookingRepository;
+
+    @Autowired
+    private BookingConfirmationRepository bookingConfirmationRepository;
 
     @PostMapping("/booking")
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
@@ -43,7 +48,10 @@ public class PessimisticBookingController {
                 return new ResponseEntity<>(null, HttpStatus.CONFLICT);
             }
             Booking _booking = bookingRepository.save(new Booking(booking.getName(), booking.getRoomId(), booking.getStart(), booking.getFinish()));
+            bookingConfirmationRepository.save(new BookingConfirmation(_booking.getId()));
+
             return new ResponseEntity<>(_booking, HttpStatus.CREATED);
+
         } catch (Exception e) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }

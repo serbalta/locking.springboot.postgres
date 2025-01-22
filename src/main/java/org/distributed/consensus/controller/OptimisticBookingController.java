@@ -2,7 +2,9 @@ package org.distributed.consensus.controller;
 
 import jakarta.persistence.OptimisticLockException;
 import org.distributed.consensus.model.Booking;
+import org.distributed.consensus.model.BookingConfirmation;
 import org.distributed.consensus.model.BookingPolicies;
+import org.distributed.consensus.repository.BookingConfirmationRepository;
 import org.distributed.consensus.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,9 @@ public class OptimisticBookingController {
 
     @Autowired
     BookingRepository bookingRepository;
+
+    @Autowired
+    private BookingConfirmationRepository bookingConfirmationRepository;
 
     private static final int MAX_RETRY = 3; // Max try
 
@@ -64,6 +69,8 @@ public class OptimisticBookingController {
                         booking.getStart(),
                         booking.getFinish()
                 ));
+                bookingConfirmationRepository.save(new BookingConfirmation(_booking.getId()));
+
                 return new ResponseEntity<>(_booking, HttpStatus.CREATED);
 
             } catch (OptimisticLockException e) {
